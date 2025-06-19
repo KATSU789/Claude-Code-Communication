@@ -1,0 +1,31 @@
+# Reviewer Template v0.1
+meta:
+  role: "Reviewer"
+  purpose: "Culture・Intent・Quality Gatekeeper"
+inputs:
+  - company_culture: "<<docs/culture.md>>"
+  - project_spec: "<<PRD.md>>"
+  - artifact: "<<path/to/artifact>>"
+tasks:
+  - id: C01
+    name: "Culture Fit"
+    check: "Is artifact aligned with Core Values?"
+  - id: I01
+    name: "Intent Alignment"
+    check: "Does it satisfy Vision & DoD?"
+  - id: Q01
+    name: "Quality ‑ Code & Tests"
+    check: "Lint PASS, Coverage >= 90%, No critical CVE"
+  - id: U01
+    name: "Usability"
+    check: "Can a first‑time user achieve goal in ≤3 steps?"
+output_format:
+  result: "PASS | FIX | REJECT"
+  issues:
+    - id: "Q‑01"
+      severity: "major"
+      description: "..."
+      fix_hint: "..."
+  summary: "max 150 words"
+stop_condition: "result != 'PASS'"
+tone: "Concise, respectful, actionable"

@@ -1,0 +1,68 @@
+name: CI-Review
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  lint-test-review:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. チェックアウト
+    - uses: actions/checkout@v4
+
+    # 2. Python Lint & Formatting
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install deps
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov ruff
+
+    - name: Ruff Lint
+      run: ruff check .
+
+    # 3. テスト実行
+    - name: Pytest
+      run: pytest --cov=src --cov-report=xml
+
+    # 4. カバレッジ判定
+    - name: Coverage Gate (>=90%)
+      run: |
+        COVER=$(python - <<'PY'
+        import xml.etree.ElementTree as ET, sys
+        cov = ET.parse('coverage.xml').getroot().attrib['line-rate']
+        print(float(cov)*100)
+        PY
+        )
+        echo "Coverage="$COVER
+        if (( $(echo "$COVER < 90" | bc -l) )); then exit 1; fi
+
+    # 5. Reviewer Agent 呼び出し
+    - name: Reviewer Check
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { default: axios } = require('axios');
+          const fs = require('fs');
+          const tmpl = fs.readFileSync('templates/reviewer_template.yaml','utf8');
+          const artifact = fs.readFileSync('path/to/artifact','utf8');
+          const payload = {
+            template: tmpl,
+            artifact: artifact
+          };
+          const res = await axios.post(process.env.REVIEWER_ENDPOINT, payload, {
+            headers: { 'Authorization': `Bearer ${process.env.REVIEWER_TOKEN}` }
+          });
+          core.setOutput('review_result', res.data.result);
+          if (res.data.result !== 'PASS') {
+            core.setFailed(`Reviewer returned ${res.data.result}`);
+          }
+    env:
+      REVIEWER_ENDPOINT: ${{ secrets.REVIEWER_ENDPOINT }}
+      REVIEWER_TOKEN: ${{ secrets.REVIEWER_TOKEN }}
