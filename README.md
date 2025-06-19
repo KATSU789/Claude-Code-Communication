@@ -12,11 +12,13 @@ PRESIDENT → BOSS → Workers の階層型指示システムを体感できま�
 📊 PRESIDENT セッション (1ペイン)
 └── PRESIDENT: プロジェクト統括責任者
 
-📊 multiagent セッション (4ペイン)  
+📊 multiagent セッション (6ペイン)
 ├── boss1: チームリーダー
 ├── worker1: 実行担当者A
 ├── worker2: 実行担当者B
-└── worker3: 実行担当者C
+├── worker3: 実行担当者C
+├── reviewer1: レビュー担当1
+└── reviewer2: レビュー担当2
 ```
 
 ## 🚀 クイックスタート
@@ -58,7 +60,7 @@ tmux send-keys -t president 'claude' C-m
 **手順2: Multiagent一括起動**
 ```bash
 # 認証完了後、multiagentセッションを一括起動
-for i in {0..3}; do tmux send-keys -t multiagent:0.$i 'claude' C-m; done
+for i in {0..5}; do tmux send-keys -t multiagent:0.$i 'claude' C-m; done
 ```
 
 ### 4. デモ実行
@@ -74,20 +76,22 @@ PRESIDENTセッションで直接入力：
 - **PRESIDENT**: `instructions/president.md`
 - **boss1**: `instructions/boss.md` 
 - **worker1,2,3**: `instructions/worker.md`
+- **reviewer1,2**: `instructions/reviewer.md`
 
 **Claude Code参照**: `CLAUDE.md` でシステム構造を確認
 
 **要点:**
 - **PRESIDENT**: 「あなたはpresidentです。指示書に従って」→ boss1に指示送信
-- **boss1**: PRESIDENT指示受信 → workers全員に指示 → 完了報告
-- **workers**: Hello World実行 → 完了ファイル作成 → 最後の人が報告
+- **boss1**: PRESIDENT指示受信 → workersへ指示 → reviewerからの確認後に報告
+- **workers**: Hello World実行 → 完了ファイル作成 → reviewerへ成果物送信
+- **reviewers**: 成果物チェック → 問題なければboss1へ報告
 
 ## 🎬 期待される動作フロー
 
 ```
 1. PRESIDENT → boss1: "あなたはboss1です。Hello World プロジェクト開始指示"
-2. boss1 → workers: "あなたはworker[1-3]です。Hello World 作業開始"  
-3. workers → ./tmp/ファイル作成 → 最後のworker → boss1: "全員作業完了しました"
+2. boss1 → workers: "あなたはworker[1-3]です。Hello World 作業開始"
+3. workers → reviewer1,2: 成果物送信 → reviewersからboss1へレビュー報告
 4. boss1 → PRESIDENT: "全員完了しました"
 ```
 
@@ -150,4 +154,5 @@ rm -f ./tmp/worker*_done.txt
 
 ---
 
-🚀 **Agent Communication を体感してください！** 🤖✨ 
+🚀 **Agent Communication を体感してください！** 🤖✨
+

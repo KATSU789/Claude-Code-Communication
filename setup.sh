@@ -31,38 +31,40 @@ rm -f ./tmp/worker*_done.txt 2>/dev/null && log_info "既存の完了ファイ�
 log_success "✅ クリーンアップ完了"
 echo ""
 
-# STEP 2: multiagentセッション作成（4ペイン：boss1 + worker1,2,3）
-log_info "📺 multiagentセッション作成開始 (4ペイン)..."
+# STEP 2: multiagentセッション作成（6ペイン：boss1 + worker1,2,3 + reviewer1,2）
+log_info "📺 multiagentセッション作成開始 (6ペイン)..."
 
 # 最初のペイン作成
 tmux new-session -d -s multiagent -n "agents"
 
-# 2x2グリッド作成（合計4ペイン）
-tmux split-window -h -t "multiagent:0"      # 水平分割（左右）
-tmux select-pane -t "multiagent:0.0"
-tmux split-window -v                        # 左側を垂直分割
-tmux select-pane -t "multiagent:0.2"
-tmux split-window -v                        # 右側を垂直分割
+# 追加ペイン作成（合計6ペイン）
+for i in {1..5}; do
+    tmux split-window -t "multiagent:0"
+done
+tmux select-layout -t "multiagent:0" tiled
 
 # ペインタイトル設定
 log_info "ペインタイトル設定中..."
-PANE_TITLES=("boss1" "worker1" "worker2" "worker3")
+PANE_TITLES=("boss1" "worker1" "worker2" "worker3" "reviewer1" "reviewer2")
 
-for i in {0..3}; do
+for i in {0..5}; do
     tmux select-pane -t "multiagent:0.$i" -T "${PANE_TITLES[$i]}"
-    
+
     # 作業ディレクトリ設定
     tmux send-keys -t "multiagent:0.$i" "cd $(pwd)" C-m
-    
+
     # カラープロンプト設定
     if [ $i -eq 0 ]; then
         # boss1: 赤色
         tmux send-keys -t "multiagent:0.$i" "export PS1='(\[\033[1;31m\]${PANE_TITLES[$i]}\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ '" C-m
+    elif [ $i -ge 4 ]; then
+        # reviewers: 黄色
+        tmux send-keys -t "multiagent:0.$i" "export PS1='(\[\033[1;33m\]${PANE_TITLES[$i]}\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ '" C-m
     else
         # workers: 青色
         tmux send-keys -t "multiagent:0.$i" "export PS1='(\[\033[1;34m\]${PANE_TITLES[$i]}\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ '" C-m
     fi
-    
+
     # ウェルカムメッセージ
     tmux send-keys -t "multiagent:0.$i" "echo '=== ${PANE_TITLES[$i]} エージェント ==='" C-m
 done
@@ -97,11 +99,13 @@ echo ""
 
 # ペイン構成表示
 echo "📋 ペイン構成:"
-echo "  multiagentセッション（4ペイン）:"
-echo "    Pane 0: boss1     (チームリーダー)"
-echo "    Pane 1: worker1   (実行担当者A)"
-echo "    Pane 2: worker2   (実行担当者B)"
-echo "    Pane 3: worker3   (実行担当者C)"
+echo "  multiagentセッション（6ペイン）:"
+echo "    Pane 0: boss1      (チームリーダー)"
+echo "    Pane 1: worker1    (実行担当者A)"
+echo "    Pane 2: worker2    (実行担当者B)"
+echo "    Pane 3: worker3    (実行担当者C)"
+echo "    Pane 4: reviewer1  (レビュー担当1)"
+echo "    Pane 5: reviewer2  (レビュー担当2)"
 echo ""
 echo "  presidentセッション（1ペイン）:"
 echo "    Pane 0: PRESIDENT (プロジェクト統括)"

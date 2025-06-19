@@ -13,6 +13,14 @@
 ```bash
 echo "Hello World!"
 
+# reviewer1, reviewer2へ成果物を送信
+./agent-send.sh reviewer1 "worker1 の成果物: Hello World!"  # worker1の場合
+# ./agent-send.sh reviewer1 "worker2 の成果物: Hello World!"  # worker2の場合
+# ./agent-send.sh reviewer1 "worker3 の成果物: Hello World!"  # worker3の場合
+./agent-send.sh reviewer2 "worker1 の成果物: Hello World!"  # worker1の場合
+# ./agent-send.sh reviewer2 "worker2 の成果物: Hello World!"  # worker2の場合
+# ./agent-send.sh reviewer2 "worker3 の成果物: Hello World!"  # worker3の場合
+
 # 自分の完了ファイル作成
 touch ./tmp/worker1_done.txt  # worker1の場合
 # touch ./tmp/worker2_done.txt  # worker2の場合

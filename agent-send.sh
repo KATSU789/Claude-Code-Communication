@@ -10,6 +10,8 @@ get_agent_target() {
         "worker1") echo "multiagent:0.1" ;;
         "worker2") echo "multiagent:0.2" ;;
         "worker3") echo "multiagent:0.3" ;;
+        "reviewer1") echo "multiagent:0.4" ;;
+        "reviewer2") echo "multiagent:0.5" ;;
         *) echo "" ;;
     esac
 }
@@ -28,6 +30,8 @@ show_usage() {
   worker1   - 実行担当者A
   worker2   - 実行担当者B
   worker3   - 実行担当者C
+  reviewer1 - レビュー担当1
+  reviewer2 - レビュー担当2
 
 使用例:
   $0 president "指示書に従って"
@@ -43,8 +47,10 @@ show_agents() {
     echo "  president → president:0     (プロジェクト統括責任者)"
     echo "  boss1     → multiagent:0.0  (チームリーダー)"
     echo "  worker1   → multiagent:0.1  (実行担当者A)"
-    echo "  worker2   → multiagent:0.2  (実行担当者B)" 
+    echo "  worker2   → multiagent:0.2  (実行担当者B)"
     echo "  worker3   → multiagent:0.3  (実行担当者C)"
+    echo "  reviewer1 → multiagent:0.4  (レビュー担当1)"
+    echo "  reviewer2 → multiagent:0.5  (レビュー担当2)"
 }
 
 # ログ記録
